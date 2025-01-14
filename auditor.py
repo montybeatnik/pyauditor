@@ -116,7 +116,7 @@ def get_devices(un: str, pw: str) -> List:
         models.Device(mgmt_addr="10.0.0.213", username=un, password=pw, hostname="lab-r7"),
         models.Device(mgmt_addr="10.0.0.149", username=un, password=pw, hostname="lab-r8"),
     ]
-    return devices    
+    return devices
 
 
 def main():
