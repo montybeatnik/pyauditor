@@ -9,6 +9,13 @@ Run audits against the network infrastructure.
 uv add xmltodict
 ```
 
+### Run some code 
+```bash
+uv run auditor.py
+# or if you're feeling frisky, run the concurrent audit
+uv run auditor-conc.py
+```
+
 ## Create the DB
 ```bash
 python store.py
@@ -33,6 +40,8 @@ sqlite> select * from audits;
 ```
 
 ## TODO
-- [ ] Add failure column to audit table 
-    - ensure the reason is added
+- [x] Add failure column to audit table 
+    - [x] ensure the reason is added
 - [ ] improve the exception handling 
+- [ ] pull queries out into their own file
+

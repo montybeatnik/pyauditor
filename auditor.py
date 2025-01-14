@@ -7,7 +7,7 @@ from typing import List
 from store import AuditUpdate
 import models
 
-def update_store(dev: models.Device, cmd: str, output: str):
+def update_store(dev: models.Device, cmd: str, output: str) -> None:
     """
     update_store takes in 
         - a device of type models.Device
@@ -21,10 +21,31 @@ def update_store(dev: models.Device, cmd: str, output: str):
         cmd=cmd,
         output=output,
         db="audits.db",
+        was_successful=True,
+        failure_reason=None,
     )
     audit_update.update()
 
-def run_command_and_store_results(dev: models.Device, cmd: str) -> str:
+def update_store_failure(dev: models.Device, cmd: str, failure_reason: str) -> None:
+    """
+    update_store takes in 
+        - a device of type models.Device
+        - a cmd of type str
+        - output of type str
+    It constructs an AuditUpdate and then calls the update method, 
+    which updates the store (sqlite DB). 
+    """
+    audit_update = AuditUpdate(
+        device=dev,
+        cmd=cmd,
+        output=None,
+        was_successful=False,
+        failure_reason=failure_reason,
+        db="audits.db",
+    )
+    audit_update.update()    
+
+def run_command_and_store_results(dev: models.Device, cmd: str) -> None:
     """
     run_command_and_store_results takes in
         - a dev of type models.Device
@@ -45,8 +66,8 @@ def run_command_and_store_results(dev: models.Device, cmd: str) -> str:
     # to print more meaningful errors.
     except Exception as e:
         # For when we run it concurrently in a separate thread
-        print(f"something went wrong {e}")
-        return f"something went wrong {e}"
+        update_store_failure(dev, cmd, str(e))
+
 
 def run_audit(devices: List[models.Device], cmd: str):
     """
@@ -103,9 +124,8 @@ def main():
     un = os.getenv("SSH_USER")
     pw = os.getenv("SSH_PASSWORD")
     # currently using the lab devices in my proxmox instance of eve-ng. 
-    devices = get_devices(un, pw)
-    # loop through the devices, and run the get_software func, grabbing the JunOS version.  
-    cmd = "show mpls lsp"
+    devices = get_devices(un, pw)  
+    cmd = "show system alarms"
     run_audit(devices, cmd)
 
 
