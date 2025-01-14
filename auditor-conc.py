@@ -1,12 +1,11 @@
-import threading
-from auditor import get_software, devices
+import os
+import auditor
 
 if __name__ == "__main__":
     threads = list()
-    for dev in devices:
-        thread = threading.Thread(target=get_software, args=(dev,))
-        threads.append(thread)
-        thread.start()
-
-    for thread in threads:
-        thread.join()
+    cmd = "show interfaces terse ge*"
+    un = os.getenv("SSH_USER")
+    pw = os.getenv("SSH_PASSWORD")
+    devices = auditor.get_devices(un=un, pw=pw)
+    auditor.run_audit_concurrently(devices, cmd)
+    

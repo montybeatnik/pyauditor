@@ -31,3 +31,8 @@ sqlite> select * from audits;
 | 16 | show version | 2025-01-13 14:07:00.070654 | lab-r8   | JUNOS Software Release [12.1X46-D20.5] |
 +----+--------------+----------------------------+----------+----------------------------------------+
 ```
+
+## TODO
+- [ ] Add failure column to audit table 
+    - ensure the reason is added
+- [ ] improve the exception handling 

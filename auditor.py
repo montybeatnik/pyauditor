@@ -1,35 +1,90 @@
 import os
 from netmiko.juniper import JuniperSSH
+import threading
 import xmltodict
+from typing import List
 
 from store import AuditUpdate
 import models
 
+def update_store(dev: models.Device, cmd: str, output: str):
+    """
+    update_store takes in 
+        - a device of type models.Device
+        - a cmd of type str
+        - output of type str
+    It constructs an AuditUpdate and then calls the update method, 
+    which updates the store (sqlite DB). 
+    """
+    audit_update = AuditUpdate(
+        device=dev,
+        cmd=cmd,
+        output=output,
+        db="audits.db",
+    )
+    audit_update.update()
 
-def get_software(dev:models.Device) -> str:
+def run_command_and_store_results(dev: models.Device, cmd: str) -> str:
     """
-    get_software takes in a device, which is of type models.Device, 
-    it logs into the device, runs the command, converst the xml string 
-    to a dict, and finally returns it. 
+    run_command_and_store_results takes in
+        - a dev of type models.Device
+        - and a cmd of type string 
+    It attempts to log into the device and run the command. 
+    If the cmd asks for xml, it will then attempt to parse that output
+    into a native python dict. 
+    Finally, it will update the store with the results. 
     """
-    jnpr_dev = JuniperSSH(ip=dev.mgmt_addr, username=dev.username, password=dev.password)
-    cmd = "show version | display xml"
-    ver = ""
     try:
+        jnpr_dev = JuniperSSH(ip=dev.mgmt_addr, username=dev.username, password=dev.password)
         output = jnpr_dev.send_command(cmd)
-        ver = xmltodict.parse(output)
+        if "xml" in cmd:
+            output = xmltodict.parse(output)
+        update_store(dev, cmd, output)
     # TODO: 
     # Could probably have an array of more specific exceptions
     # to print more meaningful errors.
     except Exception as e:
+        # For when we run it concurrently in a separate thread
         print(f"something went wrong {e}")
-    return ver
+        return f"something went wrong {e}"
 
-def main():
-    # setup the creds
-    un = os.getenv("SSH_USER")
-    pw = os.getenv("SSH_PASSWORD")
-    # currently using the lab devices in my proxmox instance of eve-ng. 
+def run_audit(devices: List[models.Device], cmd: str):
+    """
+    run_audit takes in a list of devices and a command. 
+    It loops through the devices, running the command. 
+    Then it updates the DB via the store. 
+    """
+    print(f"running an audit against {len(devices)}")
+    for dev in devices:
+        print(f"logging into {dev.hostname}...")
+        err = run_command_and_store_results(dev, cmd)
+        if err != None:
+            print(err)
+
+def run_audit_concurrently(devices: List[models.Device], cmd: str):
+    """
+    run_audit_concurrently takes in a list of devices and a command. 
+    It loops through the devices, firing off a thread for each, where each thread
+    runs the command against the device. 
+    Then it updates the DB via the store. 
+    """
+    print(f"running an audit against {len(devices)}")
+    threads = list()
+    for dev in devices:
+        thread = threading.Thread(target=run_command_and_store_results, args=(dev, cmd))
+        threads.append(thread)
+        thread.start()
+
+    for thread in threads:
+        thread.join()
+
+def get_devices(un: str, pw: str) -> List:
+    """
+    get_devices is a helper function that produces a list of 
+    lab devices for testing.
+    TODO: this should be a call to netbox or some other DB housing
+    network elements.
+    """
     devices = [
         models.Device(mgmt_addr="10.0.0.86", username=un, password=pw, hostname="lab-r1"),
         models.Device(mgmt_addr="10.0.0.23", username=un, password=pw, hostname="lab-r2"),
@@ -40,20 +95,18 @@ def main():
         models.Device(mgmt_addr="10.0.0.213", username=un, password=pw, hostname="lab-r7"),
         models.Device(mgmt_addr="10.0.0.149", username=un, password=pw, hostname="lab-r8"),
     ]
+    return devices    
+
+
+def main():
+    # setup the creds
+    un = os.getenv("SSH_USER")
+    pw = os.getenv("SSH_PASSWORD")
+    # currently using the lab devices in my proxmox instance of eve-ng. 
+    devices = get_devices(un, pw)
     # loop through the devices, and run the get_software func, grabbing the JunOS version.  
-    for dev in devices:
-        output = get_software(dev)
-        ver = output["rpc-reply"]["software-information"]["package-information"]["comment"]
-        # prepare the data so we can add it to the DB at the store layer. 
-        audit_update = AuditUpdate(
-            device=dev,
-            cmd="show version",
-            output=ver,
-            db="audits.db",
-        )
-        audit_update.update()
-
-
+    cmd = "show mpls lsp"
+    run_audit(devices, cmd)
 
 
 if __name__ == "__main__":
