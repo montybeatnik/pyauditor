@@ -1,6 +1,9 @@
 # Auditor
 Run audits against the network infrastructure. 
 
+## Overview
+
+
 ## Manage the project
 - using [uv](https://github.com/astral-sh/uv)
 
@@ -19,6 +22,8 @@ uv run auditor-conc.py
 ## Create the DB
 ```bash
 python store.py
+# or 
+uv run store.py
 ```
 
 ### run an audit and look at the tables
@@ -42,6 +47,7 @@ sqlite> select * from audits;
 ## TODO
 - [x] Add failure column to audit table 
     - [x] ensure the reason is added
+- [ ] Add user column (could be some background daemon and not a real person)
 - [ ] improve the exception handling 
 - [ ] pull queries out into their own file
 
