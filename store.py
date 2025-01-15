@@ -25,7 +25,7 @@ class Auditor:
         with sqlite3.connect(self.db) as conn:
             try:
                 params = (
-                    datetime.datetime.now(), 
+                    datetime.datetime.fromtimestamp(datetime.datetime.now()), 
                     audit.user,
                     audit.cmd, 
                     audit.device.hostname, 
@@ -48,7 +48,7 @@ class Auditor:
                 if row[0] == "audits":
                     return True
         except Exception as e:
-            print(f"couldn't very if table {table_name} exists: {str(e)}")
+            print(f"couldn't verify table {table_name} exists: {str(e)}")
             return False
         return False
 

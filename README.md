@@ -1,14 +1,14 @@
 # Auditor
-Run audits against the network infrastructure. 
+Run audits against the Juniper network infrastructure. 
 
 ## Overview
 There are times when we'll want to run audits against our fleet of infrastructure devices. This is the begining of a framework to do just that. 
 
 ## Decisions
-- dependency management with uv: I decided to use uv to manage the project. I've been using a VM as I wasn't able to install uv on my work mac. It's buit with Rust and is blazing fast! 
+- dependency management with uv: I decided to use uv to manage the project. It's buit with Rust and is blazing fast! 
 - type hinting: because...well, why not? In the absence of a strongly typed language, this is the best we've got. 
 - netmiko: because it's been around a while and it's probably not going to change drastically out from underneath us. 
-- sqlite: it doesn't require us to install anything. See above. 
+- sqlite: it doesn't require us to install anything. 
 
 ## Contributing
 There are 4 branches. 
@@ -46,6 +46,11 @@ uv run auditor-conc.py
 python store.py
 # or 
 uv run store.py
+```
+
+## Run the tests
+```bash
+uv run pytest
 ```
 
 ### Learn how to interact with the DB
