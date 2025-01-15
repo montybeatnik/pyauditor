@@ -62,10 +62,17 @@ def run_command_and_store_results(dev: models.Device, cmd: str) -> None:
     Finally, it will update the store with the results. 
     """
     try:
-        jnpr_dev = JuniperSSH(ip=dev.mgmt_addr, username=dev.username, password=dev.password)
+        jnpr_dev = JuniperSSH(
+            ip=dev.mgmt_addr, 
+            username=dev.username, 
+            password=dev.password,
+        )
         output = jnpr_dev.send_command(cmd)
-        if "xml" in cmd:
-            output = xmltodict.parse(output)
+        # TODO: in the future, we might want structured data, 
+        # so we can do interesting things, but for now, I've
+        # commented out the 2 lines below. 
+        # if "xml" in cmd:
+        #     output = xmltodict.parse(output)
         update_store(dev, cmd, output)
     # TODO: 
     # Could probably have an array of more specific exceptions

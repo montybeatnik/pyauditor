@@ -2,7 +2,24 @@
 Run audits against the network infrastructure. 
 
 ## Overview
-There are times when we'll want to run audits against our fleet of devices. This is the begining of a framework to do just that. 
+There are times when we'll want to run audits against our fleet of infrastructure devices. This is the begining of a framework to do just that. 
+
+## Decisions
+- dependency management with uv: I decided to use uv to manage the project. I've been using a VM as I wasn't able to install uv on my work mac. 
+- type hinting: because...well, why not? In the absence of a strongly typed language, this is the best we've got. 
+- netmiko: because it's been around a while and it's probably not going to change drastically out from underneath us. 
+- sqlite: it doesn't require us to install anything. See above. 
+
+## Contributing
+There are 4 branches. 
+- development
+- staging
+- production
+- main
+
+If you want to add a feature or fix a bug, branch off of development and submit a merge request. If the changes are approved, we'll merge them into development and test. 
+
+I'd like to stricly enforce unit testing, but I don't think we're there yet (I know, that's a terrible excuse!)
 
 ### Env Variables
 We could get these from a vault - see [hashicorp](https://www.vaultproject.io/). 
