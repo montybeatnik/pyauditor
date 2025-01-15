@@ -1,11 +1,15 @@
 import os
 from netmiko.juniper import JuniperSSH
 import threading
-import xmltodict
 from typing import List
+import xmltodict
+from getpass import getuser
 
 from store import AuditUpdate
 import models
+
+# I'm not a fan of global variables, but here we are! 
+user = getuser()
 
 def update_store(dev: models.Device, cmd: str, output: str) -> None:
     """
@@ -17,6 +21,7 @@ def update_store(dev: models.Device, cmd: str, output: str) -> None:
     which updates the store (sqlite DB). 
     """
     audit_update = AuditUpdate(
+        user=user,
         device=dev,
         cmd=cmd,
         output=output,
@@ -36,6 +41,7 @@ def update_store_failure(dev: models.Device, cmd: str, failure_reason: str) -> N
     which updates the store (sqlite DB). 
     """
     audit_update = AuditUpdate(
+        user=user,
         device=dev,
         cmd=cmd,
         output=None,
