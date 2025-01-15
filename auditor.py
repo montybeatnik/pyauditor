@@ -8,6 +8,7 @@ from getpass import getuser
 from store import AuditUpdate
 import models
 
+# I'm not a fan of global variables, but here we are! 
 user = getuser()
 
 def update_store(dev: models.Device, cmd: str, output: str) -> None:
