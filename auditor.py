@@ -5,7 +5,7 @@ from typing import List
 import xmltodict
 from getpass import getuser
 
-from store import AuditUpdate
+from store import Auditor
 import models
 
 # I'm not a fan of global variables, but here we are! 
@@ -17,19 +17,19 @@ def update_store(dev: models.Device, cmd: str, output: str) -> None:
         - a device of type models.Device
         - a cmd of type str
         - output of type str
-    It constructs an AuditUpdate and then calls the update method, 
+    It constructs an Audit and then calls the update method on the auditor, 
     which updates the store (sqlite DB). 
     """
-    audit_update = AuditUpdate(
+    auditor = Auditor("audits.db")
+    audit = models.Audit(
         user=user,
         device=dev,
         cmd=cmd,
         output=output,
-        db="audits.db",
         was_successful=True,
         failure_reason=None,
     )
-    audit_update.update()
+    auditor.update(audit)
 
 def update_store_failure(dev: models.Device, cmd: str, failure_reason: str) -> None:
     """
@@ -40,16 +40,16 @@ def update_store_failure(dev: models.Device, cmd: str, failure_reason: str) -> N
     It constructs an AuditUpdate and then calls the update method, 
     which updates the store (sqlite DB). 
     """
-    audit_update = AuditUpdate(
+    auditor = Auditor("audits.db")
+    audit = models.Audit(
         user=user,
         device=dev,
         cmd=cmd,
         output=None,
         was_successful=False,
         failure_reason=failure_reason,
-        db="audits.db",
     )
-    audit_update.update()    
+    auditor.update(audit)
 
 def run_command_and_store_results(dev: models.Device, cmd: str) -> None:
     """

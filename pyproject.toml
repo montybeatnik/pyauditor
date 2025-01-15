@@ -6,5 +6,6 @@ readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
     "netmiko>=4.5.0",
+    "pytest>=8.3.4",
     "xmltodict>=0.14.2",
 ]

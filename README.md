@@ -5,7 +5,7 @@ Run audits against the network infrastructure.
 There are times when we'll want to run audits against our fleet of infrastructure devices. This is the begining of a framework to do just that. 
 
 ## Decisions
-- dependency management with uv: I decided to use uv to manage the project. I've been using a VM as I wasn't able to install uv on my work mac. 
+- dependency management with uv: I decided to use uv to manage the project. I've been using a VM as I wasn't able to install uv on my work mac. It's buit with Rust and is blazing fast! 
 - type hinting: because...well, why not? In the absence of a strongly typed language, this is the best we've got. 
 - netmiko: because it's been around a while and it's probably not going to change drastically out from underneath us. 
 - sqlite: it doesn't require us to install anything. See above. 
