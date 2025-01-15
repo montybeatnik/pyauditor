@@ -21,7 +21,7 @@ class Auditor:
             except Exception as e:
                 print(f"failed to create table {e}")
 
-    def update(self, audit: models.Audit):
+    def insert_audit(self, audit: models.Audit):
         with sqlite3.connect(self.db) as conn:
             try:
                 params = (
@@ -33,17 +33,16 @@ class Auditor:
                     audit.was_successful,
                     audit.failure_reason,
                 )
-                conn.execute(models.INSERT_AUDIT, params)
+                conn.execute(queries.INSERT_AUDIT, params)
             except Exception as e:
                 print(f"couldn't update {self.db} DB; {e}")
 
     def table_exists(self, table_name: str) -> bool:
         # query = "SELECT name FROM sqlite_master WHERE name=?;"
-        query = "SELECT name FROM sqlite_master WHERE name='audits';"
         try: 
             with sqlite3.connect(self.db) as conn:
                 # cur = conn.execute(query, table_name)
-                cur = conn.execute(query)
+                cur = conn.execute(queries.TABLE_EXISTS)
                 row = cur.fetchone()
                 print(f"{row=}")
                 if row[0] == "audits":

@@ -13,6 +13,8 @@ CREATE TABLE IF NOT EXISTS audits (
 );        
 """
 
+TABLE_EXISTS = "SELECT name FROM sqlite_master WHERE name='audits';"
+
 INSERT_AUDIT = """ -- insert one
 INSERT INTO audits (
     created_at,
@@ -25,3 +27,4 @@ INSERT INTO audits (
 ) VALUES (
     ?, ?, ?, ?, ?, ?, ?
 );
+"""

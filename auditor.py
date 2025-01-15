@@ -29,7 +29,7 @@ def update_store(dev: models.Device, cmd: str, output: str) -> None:
         was_successful=True,
         failure_reason=None,
     )
-    auditor.update(audit)
+    auditor.insert_audit(audit)
 
 def update_store_failure(dev: models.Device, cmd: str, failure_reason: str) -> None:
     """
@@ -49,7 +49,7 @@ def update_store_failure(dev: models.Device, cmd: str, failure_reason: str) -> N
         was_successful=False,
         failure_reason=failure_reason,
     )
-    auditor.update(audit)
+    auditor.insert_audit(audit)
 
 def run_command_and_store_results(dev: models.Device, cmd: str) -> None:
     """
