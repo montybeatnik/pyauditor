@@ -4,45 +4,25 @@ import datetime
 from getpass import getuser
 
 import models
+import queries
 
 @dataclass
 class Auditor:
     db: str
 
     def create_table(self):
-        query = """ -- create audit table
-CREATE TABLE IF NOT EXISTS audits (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    user TEXT,
-    cmd TEXT,
-    created_at DATETIME,
-    hostname TEXT,
-    output BLOB,
-    was_successful BOOLEAN,
-    failure_reason TEXT
-);        
-"""
+        """
+        create_table creates the audits table. In the future, this could be expanded 
+        to take in a table name and it could be extensible and re-usable yadda yadda. 
+        """
         with sqlite3.connect(self.db) as conn:
             try:
-                conn.execute(query)
+                conn.execute(queries.CREATE_AUDIT_TABLE)
             except Exception as e:
                 print(f"failed to create table {e}")
 
     def update(self, audit: models.Audit):
         with sqlite3.connect(self.db) as conn:
-            query = f""" -- insert one
-INSERT INTO audits (
-    created_at,
-    user,
-    cmd,
-    hostname,
-    output,
-    was_successful,
-    failure_reason
-) VALUES (
-    ?, ?, ?, ?, ?, ?, ?
-);
-"""
             try:
                 params = (
                     datetime.datetime.now(), 
@@ -53,7 +33,7 @@ INSERT INTO audits (
                     audit.was_successful,
                     audit.failure_reason,
                 )
-                conn.execute(query, params)
+                conn.execute(models.INSERT_AUDIT, params)
             except Exception as e:
                 print(f"couldn't update {self.db} DB; {e}")
 
