@@ -1,11 +1,13 @@
 from dataclasses import dataclass
 import sqlite3
 import datetime
+from getpass import getuser
 
 from models import Device
 
 @dataclass
 class AuditUpdate:
+    user: str # TODO: this should be a PK pointing to user's table. 
     device: Device
     cmd: str
     output: str
@@ -17,6 +19,7 @@ class AuditUpdate:
         query = """ -- create audit table
 CREATE TABLE IF NOT EXISTS audits (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user TEXT,
     cmd TEXT,
     created_at DATETIME,
     hostname TEXT,
@@ -36,18 +39,20 @@ CREATE TABLE IF NOT EXISTS audits (
             query = f""" -- insert one
 INSERT INTO audits (
     created_at,
+    user,
     cmd,
     hostname,
     output,
     was_successful,
     failure_reason
 ) VALUES (
-    ?, ?, ?, ?, ?, ?
+    ?, ?, ?, ?, ?, ?, ?
 );
 """
             try:
                 params = (
                     datetime.datetime.now(), 
+                    self.user,
                     self.cmd, 
                     self.device.hostname, 
                     self.output,
@@ -60,7 +65,9 @@ INSERT INTO audits (
 
 if __name__ == "__main__":
     # TODO: this is wrong; fix it when you have time!
+    user = getuser()
     audit_update = AuditUpdate(
+        user=user,
         device=Device(hostname="test", mgmt_addr="1.1.1.1", username="user", password="pass"),        
         cmd="test command",
         output="{'msg':'some msg'}",
